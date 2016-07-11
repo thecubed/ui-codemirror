@@ -101,7 +101,7 @@ function uiCodemirrorDirective($timeout, uiCodemirrorConfig) {
     return codemirror;
   }
 
-  function configOptionsWatcher(codemirrot, uiCodemirrorAttr, scope) {
+  function configOptionsWatcher(codemirror, uiCodemirrorAttr, scope) {
     if (!uiCodemirrorAttr) { return; }
 
     var codemirrorDefaultsKeys = Object.keys(window.CodeMirror.defaults);
@@ -114,8 +114,12 @@ function uiCodemirrorDirective($timeout, uiCodemirrorConfig) {
           if (oldValue && newValues[key] === oldValue[key]) {
             return;
           }
-
-          codemirrot.setOption(key, newValues[key]);
+          if (codemirror instanceof CodeMirror.MergeView) {
+            console.log(key, newValues[key]);
+            codemirror.edit.setOption(key, newValues[key]);
+          } else {
+            codemirror.setOption(key, newValues[key]);
+          }
         }
       });
     }
@@ -184,7 +188,11 @@ function uiCodemirrorDirective($timeout, uiCodemirrorConfig) {
       // Skip the initial watch firing
       if (newVal !== oldVal) {
         $timeout(function() {
-          codeMirror.refresh();
+          if (codeMirror instanceof CodeMirror.MergeView) {
+            codeMirror.edit.refresh();
+          } else {
+            codeMirror.refresh();
+          }
         });
       }
     });
